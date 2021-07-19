@@ -6,11 +6,31 @@
 	<artifactId>cursoMassa</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+   <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.apache.maven.plugins</groupId>
+  			<artifactId>maven-compiler-plugin</artifactId>
+  			<version>3.8.1</version>
+  			<configuration>
+  				<source>${maven-compiler.source}</source>
+  				<target>${mavem-compiler.target}</target>
+  			</configuration>
+  		</plugin>
+  	</plugins>
+  	</build>
+  	
 	<dependencies>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.2.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>3.12.0</version>
 		</dependency>
 	</dependencies>
 </project>
