@@ -12,7 +12,7 @@ public class ConnectionFactory {
 	private static String porta = "5432"; 
 	private static String schema = "dbunit"; 
 	private static String user = "postgres"; 
-	private static String senha = "passwd"; 
+	private static String senha = "hzk@2021"; 
 	
 	public static Connection getConnection() throws SQLException, ClassNotFoundException {
 		if(conn == null) {
