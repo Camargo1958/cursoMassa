@@ -13,7 +13,7 @@ public class MassaDAOImpl {
 				"INSERT INTO massas (tipo, valor) VALUES (?, ?)");
 		
 		stmt.setString(1, tipo);
-		stmt.setString(1, valor);
+		stmt.setString(2, valor);
 		stmt.executeUpdate();
 		stmt.close();
 	}
