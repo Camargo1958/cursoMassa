@@ -2,8 +2,11 @@ package br.ce.wcaquino.estrategia4;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 import org.dbunit.Assertion;
+import org.dbunit.assertion.DiffCollectingFailureHandler;
+import org.dbunit.assertion.Difference;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
@@ -40,6 +43,7 @@ public class ContaServiceTestDbUnit {
 		Usuario usuario = userService.findById(1L);
 		Conta conta = new Conta("Conta salva", usuario);
 		Conta contaSalva = service.salvar(conta);
+		//contaSalva.setId(1L); // Forçando erro de Id
 		
 		//estado atual do banco
 		DatabaseConnection dbConn = new DatabaseConnection(ConnectionFactory.getConnection());
@@ -50,7 +54,30 @@ public class ContaServiceTestDbUnit {
 		FlatXmlDataSet dataSetEsperado = builder.build(new FileInputStream("massas" + File.separator + "est4_inserirConta_saida.xml"));
 		
 		//comparar os dois estados
-		Assertion.assertEquals(dataSetEsperado, estadoFinalbanco);
+//		Assertion.assertEquals(dataSetEsperado, estadoFinalbanco); // sem diff handler
+		
+		DiffCollectingFailureHandler handler = new DiffCollectingFailureHandler();
+		Assertion.assertEquals(dataSetEsperado, estadoFinalbanco, handler);
+		List<Difference> diffList = handler.getDiffList();
+		boolean erroReal = false;
+		for(Difference diff: diffList) {
+			System.out.println(diff.toString());
+			if(diff.getActualTable().getTableMetaData().getTableName().equals("contas")) {
+				if(diff.getColumnName().equals("id")) {
+					if(diff.getActualValue().toString().equals(contaSalva.getId().toString())) {
+						continue;
+					} else {
+						System.out.println("Id errado mesmo!");
+						erroReal = true;
+					}
+				} else {
+					erroReal = true;
+				}
+			} else {
+				erroReal = true;
+			}
+		}
+		Assert.assertFalse(erroReal);
 		
 		userService.printAll();
 		service.printAll();
