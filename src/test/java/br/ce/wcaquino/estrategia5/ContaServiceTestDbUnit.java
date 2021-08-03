@@ -1,37 +1,23 @@
 package br.ce.wcaquino.estrategia5;
 
-import java.sql.Connection;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import br.ce.wcaquino.dao.utils.ConnectionFactory;
+import br.ce.wcaquino.dbunit.ImportExport;
 import br.ce.wcaquino.entidades.Conta;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.service.ContaService;
 import br.ce.wcaquino.service.UsuarioService;
 
-public class ContaServiceTest {
+public class ContaServiceTestDbUnit {
 	
 	ContaService service = new ContaService();
 	UsuarioService userService = new UsuarioService();
 	
 	@BeforeClass
 	public static void inserirConta() throws Exception {
-		Connection conn = ConnectionFactory.getConnection();
-		conn.createStatement().executeUpdate("DELETE FROM transacoes");
-		conn.createStatement().executeUpdate("DELETE FROM contas");
-		conn.createStatement().executeUpdate("DELETE FROM usuarios");
-		conn.createStatement().executeUpdate("INSERT INTO usuarios (id, nome, email, senha) "
-				+ "VALUES(1, 'Usuario de controle', 'usuario@email.com','passwd')");
-		conn.createStatement().executeUpdate("INSERT INTO contas (id, nome, usuario_id) "
-				+ "VALUES(1, 'Conta para testes', 1)");
-		conn.createStatement().executeUpdate("INSERT INTO contas (id, nome, usuario_id) "
-				+ "VALUES(2, 'Conta CT005 alteracao', 1)");
-		conn.createStatement().executeUpdate("INSERT INTO contas (id, nome, usuario_id) "
-				+ "VALUES(3, 'Conta para deletar', 1)");
-
+		ImportExport.importarBanco("est5.xml");
 	}
 
 	@Test
