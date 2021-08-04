@@ -9,6 +9,8 @@ import org.dbunit.assertion.DiffCollectingFailureHandler;
 import org.dbunit.assertion.Difference;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.junit.Assert;
@@ -38,6 +40,32 @@ public class ContaServiceTestDbUnit {
 	}
 	
 	@Test
+	public void testInserir_Filter() throws Exception {
+		ImportExport.importarBanco("est4_inserirConta.xml");
+		Usuario usuario = userService.findById(1L);
+		Conta conta = new Conta("Conta salva", usuario);
+		service.salvar(conta);
+		
+		//estado atual do banco
+		DatabaseConnection dbConn = new DatabaseConnection(ConnectionFactory.getConnection());
+		IDataSet estadoFinalBanco = dbConn.createDataSet();
+		
+		//estado esperado (XML)
+		FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
+		FlatXmlDataSet dataSetEsperado = builder.build(new FileInputStream("massas" + File.separator + "est4_inserirConta_saida.xml"));
+		
+		//comparar os dois estados
+		ITable contasAtualFiltradas = DefaultColumnFilter.excludedColumnsTable(estadoFinalBanco.getTable("contas"), new String[] {"id"});
+		ITable contasEsperadoFiltradas = DefaultColumnFilter.excludedColumnsTable(dataSetEsperado.getTable("contas"), new String[] {"id"});
+
+		ITable usuarioAtualFiltradas = DefaultColumnFilter.excludedColumnsTable(estadoFinalBanco.getTable("usuarios"), new String[] {"conta_principal_id"});
+		ITable usuarioEsperadoFiltradas = DefaultColumnFilter.excludedColumnsTable(dataSetEsperado.getTable("usuarios"), new String[] {"conta_principal_id"});
+
+		Assertion.assertEquals(contasEsperadoFiltradas, contasAtualFiltradas);
+		Assertion.assertEquals(usuarioEsperadoFiltradas, usuarioAtualFiltradas);
+	}
+	
+	@Test
 	public void testInserir_Assertion() throws Exception {
 		ImportExport.importarBanco("est4_inserirConta.xml");
 		Usuario usuario = userService.findById(1L);
@@ -47,7 +75,7 @@ public class ContaServiceTestDbUnit {
 		
 		//estado atual do banco
 		DatabaseConnection dbConn = new DatabaseConnection(ConnectionFactory.getConnection());
-		IDataSet estadoFinalbanco = dbConn.createDataSet();
+		IDataSet estadoFinalBanco = dbConn.createDataSet();
 		
 		//estado esperado (XML)
 		FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
@@ -57,7 +85,7 @@ public class ContaServiceTestDbUnit {
 //		Assertion.assertEquals(dataSetEsperado, estadoFinalbanco); // sem diff handler
 		
 		DiffCollectingFailureHandler handler = new DiffCollectingFailureHandler();
-		Assertion.assertEquals(dataSetEsperado, estadoFinalbanco, handler);
+		Assertion.assertEquals(dataSetEsperado, estadoFinalBanco, handler);
 		List<Difference> diffList = handler.getDiffList();
 		boolean erroReal = false;
 		for(Difference diff: diffList) {
